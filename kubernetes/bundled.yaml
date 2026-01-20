@@ -252,7 +252,7 @@ rules:
     verbs: ["get", "list", "watch"]
   - apiGroups: [""]
     resources: ["nodes"]
-    verbs: ["get", "list", "watch", "udate"]
+    verbs: ["get", "list", "watch", "update"]
   - apiGroups: [""]
     resources: ["pods/eviction"]
     verbs: ["create"]
@@ -286,10 +286,10 @@ metadata:
 rules:
   - apiGroups: ["cluster.x-k8s.io"]
     resources: ["machinedeployments", "machinedeployments/scale", "machines", "machinesets", "machinepools"]
-    verbs: ["get", "list", "watch", "udate"]
+    verbs: ["get", "list", "watch", "update"]
   - apiGroups: ["infrastructure.cluster.x-k8s.io"]
     resources: ["kubevirtcluster", "kubevirtmachinetemplate", "kubevirtmachinetemplates"]
-    verbs: ["get", "list", "watch", "udate"]
+    verbs: ["get", "list", "watch", "update"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
