@@ -1,0 +1,159 @@
+<div class="content">
+  <div class="container-fluid">
+    <div class="content-wrapper">
+      &nbsp;<br>
+      <div class="card card-outline">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-camera"></i>
+            &nbsp;&nbsp;VM Snapshots
+          </h3>
+          <div class="card-tools">
+            <button type="button" data-placement="bottom" data-toggle="tooltip"
+              title="Refresh..." class="btn btn-tool" (click)="fullReload()">
+              <i class="fas fa-sync" title="Refresh..."></i>
+            </button>
+            <button type="button" data-placement="bottom" data-toggle="tooltip"
+              title="New Snapshot..." class="btn btn-tool" (click)="showNew()">
+              <i class="fas fa-plus-square" title="New Snapshot..."></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <table datatable id="snapshotList_datatable"
+            [dtOptions]="snapshotList_dtOptions"
+            [dtTrigger]="snapshotList_dtTrigger"
+            class="table table-sm" style="vertical-align: middle !important;">
+            <thead>
+              <tr>
+                <th style="width: 10px">&nbsp;</th>
+                <th style="width: 100px">Namespace</th>
+                <th style="width: 160px">Name</th>
+                <th style="width: 160px">Source VM</th>
+                <th style="width: 60px">Ready</th>
+                <th style="width: 80px">&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let snap of snapshotList">
+                <td style="line-height: 2.2 !important; align-content: center;">
+                  <i class="fas fa-camera"></i>
+                </td>
+                <td style="line-height: 2.2 !important;">{{ snap.metadata.namespace }}</td>
+                <td style="line-height: 2.2 !important;">{{ snap.metadata.name }}</td>
+                <td style="line-height: 2.2 !important;">{{ snap.spec.source.name }}</td>
+                <td style="line-height: 2.2 !important;">
+                  <span [ngSwitch]="snap.status?.readyToUse">
+                    <span *ngSwitchCase="true" class="badge bg-success">Yes</span>
+                    <span *ngSwitchDefault class="badge bg-warning">No</span>
+                  </span>
+                </td>
+                <td style="line-height: 0 !important;">
+                  <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button"
+                      data-toggle="dropdown" aria-expanded="false">Actions</button>
+                    <div class="dropdown-menu">
+                      <a class="btn" title="Info...">
+                        <i class="fas fa-info"
+                          (click)="showInfo(snap.metadata.namespace, snap.metadata.name)"></i>
+                      </a>
+                      <a class="btn" title="Delete...">
+                        <i class="fas fa-trash"
+                          (click)="showDelete(snap.metadata.namespace, snap.metadata.name)"></i>
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Info -->
+    <div class="modal fade" id="modal-info" style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="info-title">TITLE_TEMPLATE</h4>
+            <button type="button" class="close" (click)='hideComponent("modal-info")'>
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <ul class="nav flex-column" id="info-cards">TEMPLATE</ul>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-default"
+              (click)='hideComponent("modal-info")'>Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: New -->
+    <div class="modal fade" id="modal-new" style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="new-title">TITLE_TEMPLATE</h4>
+            <button type="button" class="close" (click)='hideComponent("modal-new")'>
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body" id="new-value">
+            <label for="new-snapshot-name">Snapshot Name</label>
+            <input #newsnapshotname type="text" class="form-control"
+              id="new-snapshot-name" placeholder="my-snapshot">
+
+            <label for="new-snapshot-namespace">Namespace:</label>
+            <select #newsnapshotnamespace class="custom-select rounded-0"
+              id="new-snapshot-namespace"
+              (change)="loadVMSelector(newsnapshotnamespace.value)">
+              <option>Loading...</option>
+            </select>
+
+            <label for="new-snapshot-vm">Virtual Machine:</label>
+            <select #newsnapshotvm class="custom-select rounded-0"
+              id="new-snapshot-vm">
+              <option>Loading...</option>
+            </select>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default"
+              (click)='hideComponent("modal-new")'>Close</button>
+            <button type="button" class="btn btn-primary"
+              (click)="applyNew(newsnapshotnamespace.value, newsnapshotname.value, newsnapshotvm.value)">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Delete -->
+    <div class="modal fade" id="modal-delete" style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="delete-title">TITLE_TEMPLATE</h4>
+            <button type="button" class="close" (click)='hideComponent("modal-delete")'>
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <input type="hidden" id="delete-namespace" value="">
+          <input type="hidden" id="delete-snapshot"  value="">
+          <div class="modal-body" id="delete-value"><p>BODY_TEMPLATE</p></div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default"
+              (click)='hideComponent("modal-delete")'>Close</button>
+            <button type="button" class="btn btn-danger"
+              (click)="applyDelete()">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
