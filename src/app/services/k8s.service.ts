@@ -7,6 +7,7 @@ import { ConfigMap } from '../interfaces/config-map';
 import { ServiceAccount } from '../interfaces/service-account';
 
 const baseUrl ='./k8s/api/v1'
+const vmSnapshotBaseUrl = './k8s/apis/snapshot.kubevirt.io/v1beta1';
 
 @Injectable({
   providedIn: 'root'
@@ -163,4 +164,27 @@ export class K8sService {
         return this.http.get(`${baseUrl}/networkpolicies?labelSelector=kubevirt-manager.io/managed%3Dtrue`);
     }
 
+    getVirtualMachineSnapshotsAllNamespaces(): Observable<any> {
+        return this.http.get(`${vmSnapshotBaseUrl}/virtualmachinesnapshots`);
+    }
+
+    getVirtualMachineSnapshots(namespace: string): Observable<any> {
+        return this.http.get(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinesnapshots`);
+    }
+
+    getVirtualMachineSnapshotInfo(namespace: string, name: string): Observable<any> {
+        return this.http.get(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinesnapshots/${name}`);
+    }
+
+    createVirtualMachineSnapshot(namespace: string, snapshot: object): Observable<any> {
+        const headers = {
+            'content-type': 'application/json',
+            'accept': 'application/json'
+        };
+        return this.http.post(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinesnapshots`, snapshot, { 'headers': headers });
+    }
+
+    deleteVirtualMachineSnapshot(namespace: string, name: string): Observable<any> {
+        return this.http.delete(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinesnapshots/${name}`);
+    }
 }

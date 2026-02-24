@@ -19,6 +19,7 @@ import { ImagesComponent } from './components/images/images.component';
 import { SSHKeysComponent } from './components/sshkeys/sshkeys.component';
 import { FirewallListComponent } from './components/firewall-list/firewall-list.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { SnapshotListComponent } from './components/snapshot-list/snapshot-list.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -40,7 +41,8 @@ const routes: Routes = [
   { path: 'imagelist', component: ImagesComponent },
   { path: 'sshkeys', component: SSHKeysComponent },
   { path: 'firewalls', component: FirewallListComponent },
-  { path: 'settings', component: SettingsComponent }
+  { path: 'settings', component: SettingsComponent },
+  { path: 'snapshotlist', component: SnapshotListComponent }
 ];
 
 @NgModule({
