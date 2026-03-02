@@ -187,4 +187,28 @@ export class K8sService {
     deleteVirtualMachineSnapshot(namespace: string, name: string): Observable<any> {
         return this.http.delete(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinesnapshots/${name}`);
     }
+
+    getVirtualMachineRestoresAllNamespaces(): Observable<any> {
+        return this.http.get(`${vmSnapshotBaseUrl}/virtualmachinerestores`);
+    }
+
+    getVirtualMachineRestores(namespace: string): Observable<any> {
+        return this.http.get(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinerestores`);
+    }
+
+    getVirtualMachineRestoreInfo(namespace: string, name: string): Observable<any> {
+        return this.http.get(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinerestores/${name}`);
+    }
+
+    createVirtualMachineRestore(namespace: string, restore: object): Observable<any> {
+        const headers = {
+            'content-type': 'application/json',
+            'accept': 'application/json'
+        };
+        return this.http.post(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinerestores`, restore, { 'headers': headers });
+    }
+
+    deleteVirtualMachineRestore(namespace: string, name: string): Observable<any> {
+        return this.http.delete(`${vmSnapshotBaseUrl}/namespaces/${namespace}/virtualmachinerestores/${name}`);
+    }
 }

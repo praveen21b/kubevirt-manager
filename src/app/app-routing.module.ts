@@ -20,6 +20,7 @@ import { SSHKeysComponent } from './components/sshkeys/sshkeys.component';
 import { FirewallListComponent } from './components/firewall-list/firewall-list.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { SnapshotListComponent } from './components/snapshot-list/snapshot-list.component';
+import { SnapshotRestoreListComponent } from './components/snapshot-restore-list/snapshot-restore-list.component';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -42,7 +43,8 @@ const routes: Routes = [
   { path: 'sshkeys', component: SSHKeysComponent },
   { path: 'firewalls', component: FirewallListComponent },
   { path: 'settings', component: SettingsComponent },
-  { path: 'snapshotlist', component: SnapshotListComponent }
+  { path: 'snapshotlist', component: SnapshotListComponent },
+  { path: 'kubeops-vms/vmrestores', component: SnapshotRestoreListComponent }
 ];
 
 @NgModule({
