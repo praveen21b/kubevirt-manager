@@ -1,0 +1,168 @@
+<div class="content">
+  <div class="container-fluid">
+    <div class="content-wrapper">
+      &nbsp;<br>
+      <div class="card card-outline">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-undo"></i>
+            &nbsp;&nbsp;VM Restores
+          </h3>
+          <div class="card-tools">
+            <button type="button" data-placement="bottom" data-toggle="tooltip"
+              title="Refresh..." class="btn btn-tool" (click)="fullReload()">
+              <i class="fas fa-sync" title="Refresh..."></i>
+            </button>
+            <button type="button" data-placement="bottom" data-toggle="tooltip"
+              title="New Restore..." class="btn btn-tool" (click)="showNew()">
+              <i class="fas fa-plus-square" title="New Restore..."></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <table datatable id="restoreList_datatable"
+            [dtOptions]="restoreList_dtOptions"
+            [dtTrigger]="restoreList_dtTrigger"
+            class="table table-sm" style="vertical-align: middle !important;">
+            <thead>
+              <tr>
+                <th style="width: 10px">&nbsp;</th>
+                <th style="width: 100px">Namespace</th>
+                <th style="width: 160px">Name</th>
+                <th style="width: 160px">Target VM</th>
+                <th style="width: 160px">Snapshot</th>
+                <th style="width: 60px">Complete</th>
+                <th style="width: 80px">&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let restore of restoreList">
+                <td style="line-height: 2.2 !important; align-content: center;">
+                  <i class="fas fa-undo"></i>
+                </td>
+                <td style="line-height: 2.2 !important;">{{ restore.metadata.namespace }}</td>
+                <td style="line-height: 2.2 !important;">{{ restore.metadata.name }}</td>
+                <td style="line-height: 2.2 !important;">{{ restore.spec.target.name }}</td>
+                <td style="line-height: 2.2 !important;">{{ restore.spec.virtualMachineSnapshotName }}</td>
+                <td style="line-height: 2.2 !important;">
+                  <span [ngSwitch]="restore.status?.complete">
+                    <span *ngSwitchCase="true" class="badge bg-success">Yes</span>
+                    <span *ngSwitchDefault class="badge bg-warning">No</span>
+                  </span>
+                </td>
+                <td style="line-height: 0 !important;">
+                  <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button"
+                      data-toggle="dropdown" aria-expanded="false">Actions</button>
+                    <div class="dropdown-menu">
+                      <a class="btn" title="Info...">
+                        <i class="fas fa-info"
+                          (click)="showInfo(restore.metadata.namespace, restore.metadata.name)"></i>
+                      </a>
+                      <a class="btn" title="Delete...">
+                        <i class="fas fa-trash"
+                          (click)="showDelete(restore.metadata.namespace, restore.metadata.name)"></i>
+                      </a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Info -->
+    <div class="modal fade" id="modal-info" style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="info-title">TITLE_TEMPLATE</h4>
+            <button type="button" class="close" (click)='hideComponent("modal-info")'>
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <ul class="nav flex-column" id="info-cards">TEMPLATE</ul>
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-default"
+              (click)='hideComponent("modal-info")'>Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: New Restore -->
+    <div class="modal fade" id="modal-new" style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="new-title">TITLE_TEMPLATE</h4>
+            <button type="button" class="close" (click)='hideComponent("modal-new")'>
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body" id="new-value">
+            <label for="new-restore-name">Restore Name</label>
+            <input #newrestorename type="text" class="form-control"
+              id="new-restore-name" placeholder="my-restore">
+
+            <label for="new-restore-namespace">Namespace:</label>
+            <select #newrestorenamespace class="custom-select rounded-0"
+              id="new-restore-namespace"
+              (change)="loadSnapshotSelector(newrestorenamespace.value)">
+              <option>Loading...</option>
+            </select>
+
+            <label for="new-restore-snapshot">Snapshot:</label>
+            <select #newrestoresnapshot class="custom-select rounded-0"
+              id="new-restore-snapshot">
+              <option>Loading...</option>
+            </select>
+
+            <label for="new-restore-vm">Target VM Name:</label>
+            <input #newrestorevm type="text" class="form-control"
+              id="new-restore-vm" placeholder="my-vm">
+            <small class="form-text text-muted">
+              The VM to restore. Must match the original VM name from the snapshot.
+            </small>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default"
+              (click)='hideComponent("modal-new")'>Close</button>
+            <button type="button" class="btn btn-primary"
+              (click)="applyNew(newrestorenamespace.value, newrestorename.value, newrestoresnapshot.value, newrestorevm.value)">
+              Restore
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Delete -->
+    <div class="modal fade" id="modal-delete" style="display: none;" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="delete-title">TITLE_TEMPLATE</h4>
+            <button type="button" class="close" (click)='hideComponent("modal-delete")'>
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <input type="hidden" id="delete-namespace" value="">
+          <input type="hidden" id="delete-restore"   value="">
+          <div class="modal-body" id="delete-value"><p>BODY_TEMPLATE</p></div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default"
+              (click)='hideComponent("modal-delete")'>Close</button>
+            <button type="button" class="btn btn-danger"
+              (click)="applyDelete()">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
