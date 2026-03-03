@@ -139,6 +139,7 @@ npm test
 18. [capk-versions.json](https://kubevirt-manager.online/capk-versions.json)
 19. [cni-versions.json](https://kubevirt-manager.online/cni-versions.json)
 20. [features.json](https://kubevirt-manager.online/features.json)
+21. [VMs Snapshot and Restore](https://kubevirt.io/user-guide/storage/snapshot_restore_api/)
 
 ## License
 

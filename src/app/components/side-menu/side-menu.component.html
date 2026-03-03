@@ -31,6 +31,29 @@
             <p>VM Pools</p>
           </a>
         </li>
+        <li class="nav-item has-treeview">
+          <a href="#" class="nav-link" alt="#" title="Snapshots & Restore...">
+            <i class="nav-icon fas fa-camera"></i>
+            <p>
+              Snapshots & Restore
+              <i class="right fas fa-angle-right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a routerLink="/snapshotlist" class="nav-link pl-4" alt="#" title="Snapshots...">
+                <i class="fas fa-camera-retro nav-icon"></i> <!-- custom icon -->
+                <p>Snapshots</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a routerLink="/kubeops-vms/vmrestores" class="nav-link pl-4" alt="#" title="Restore...">
+                <i class="fas fa-undo nav-icon"></i> <!-- custom icon -->
+                <p>Restore</p>
+              </a>
+            </li>
+          </ul>
+        </li>
         <li class="nav-item">
           <a routerLink="/autoscale" class="nav-link" alt="#" title="Auto Scaling...">
             <i class="nav-icon fas fa-expand-alt"></i>
