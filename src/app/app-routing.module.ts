@@ -44,7 +44,7 @@ const routes: Routes = [
   { path: 'firewalls', component: FirewallListComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'snapshotlist', component: SnapshotListComponent },
-  { path: 'kubeops-vms/vmrestores', component: SnapshotRestoreListComponent }
+  { path: 'vmrestores', component: SnapshotRestoreListComponent }
 ];
 
 @NgModule({
