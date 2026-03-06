@@ -302,7 +302,7 @@ export class SnapshotRestoreListComponent implements OnInit {
      */
     fullReload(): void {
         this.router.navigateByUrl('/refresh', { skipLocationChange: true }).then(() => {
-            this.router.navigate(['/kubeops-vms/vmrestores']);
+            this.router.navigate(['/vmrestores']);
         });
     }
 }

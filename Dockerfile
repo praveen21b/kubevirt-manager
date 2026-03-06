@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Build Args
-ARG KVM_VERSION=nightly
+ARG KVM_VERSION=1.5.4-subpath-3
 
 # Node/Angular Builder
 FROM docker.io/node:22.5.1-bookworm as builder
@@ -33,7 +33,7 @@ RUN cd /usr/src/app/src/assets/ && \
     git clone https://github.com/novnc/noVNC.git
 RUN cd /usr/src/app && \
     sed -i "s|nightly|${KVM_VERSION}|g" src/app/components/main-footer/main-footer.component.html && \
-    npm run build
+    npm run build -- --base-href /kubevirt-manager/ --deploy-url /kubevirt-manager/
 
 # OAUTH2 IMAGE
 FROM quay.io/oauth2-proxy/oauth2-proxy:latest AS oauth2_proxy_downloader
