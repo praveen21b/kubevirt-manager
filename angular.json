@@ -37,8 +37,6 @@
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/datatables.net/js/dataTables.min.js"
             ],
-            "baseHref": "/kubevirt-manager/",
-            "deployUrl": "/kubevirt-manager/",
             "browser": "src/main.ts"
           },
           "configurations": {

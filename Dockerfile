@@ -14,11 +14,14 @@
 
 # Build Args
 ARG KVM_VERSION=nightly
+ARG APP_BASE_PATH=/kubevirt-manager
 
 # Node/Angular Builder
 FROM docker.io/node:22.5.1-bookworm as builder
 ARG KVM_VERSION
+ARG APP_BASE_PATH
 ENV KVM_VERSION=${KVM_VERSION}
+ENV APP_BASE_PATH=${APP_BASE_PATH} 
 LABEL org.opencontainers.image.authors="marcelo@feitoza.com.br"
 LABEL description="Kubevirt Manager ${KVM_VERSION} - Builder"
 
@@ -33,28 +36,37 @@ RUN cd /usr/src/app/src/assets/ && \
     git clone https://github.com/novnc/noVNC.git
 RUN cd /usr/src/app && \
     sed -i "s|nightly|${KVM_VERSION}|g" src/app/components/main-footer/main-footer.component.html && \
-    npm run build
+    npm run build -- --base-href=${APP_BASE_PATH}/
 
 # OAUTH2 IMAGE
 FROM quay.io/oauth2-proxy/oauth2-proxy:latest AS oauth2_proxy_downloader
 
 # NGINX Image
 FROM docker.io/nginx:1.29-alpine
+
+ARG KVM_VERSION
+ARG APP_BASE_PATH
+ENV APP_BASE_PATH=${APP_BASE_PATH}
+
 LABEL org.opencontainers.image.authors="marcelo@feitoza.com.br"
 LABEL description="Kubevirt Manager ${KVM_VERSION}"
 
 COPY --from=oauth2_proxy_downloader /bin/oauth2-proxy /bin/oauth2-proxy
 COPY --from=oauth2_proxy_downloader /etc/ssl/private/jwt_signing_key.pem /etc/ssl/private/jwt_signing_key.pem
 
-RUN mkdir -p /etc/nginx/location.d/ && \
-    mkdir -p /etc/nginx/oauth.d/
+RUN mkdir -p /etc/nginx/location.d/ /etc/nginx/oauth.d/
 RUN curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl && \
     chmod +x ./kubectl && \
     mv ./kubectl /usr/local/bin
 
 COPY entrypoint/90-oauth-proxy.sh /docker-entrypoint.d
 COPY entrypoint/91-startkubectl.sh /docker-entrypoint.d
-COPY conf/default.conf /etc/nginx/conf.d/
+# COPY conf/default.conf /etc/nginx/conf.d/
+COPY conf/default.conf /etc/nginx/conf.d/default.conf.template
+RUN envsubst '${APP_BASE_PATH}' \
+        < /etc/nginx/conf.d/default.conf.template \
+        > /etc/nginx/conf.d/default.conf \
+ && rm /etc/nginx/conf.d/default.conf.template
 COPY conf/gzip.conf /etc/nginx/conf.d/
 
 RUN chmod +x /docker-entrypoint.d/90-oauth-proxy.sh && chmod +x /docker-entrypoint.d/91-startkubectl.sh
