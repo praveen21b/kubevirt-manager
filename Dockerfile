@@ -1,75 +1,49 @@
-# Copyright 2025 Marcelo Parisi (github.com/feitnomore)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# Build Args
 ARG KVM_VERSION=nightly
-ARG APP_BASE_PATH=/kubevirt-manager
 
-# Node/Angular Builder
 FROM docker.io/node:22.5.1-bookworm as builder
 ARG KVM_VERSION
-ARG APP_BASE_PATH
 ENV KVM_VERSION=${KVM_VERSION}
-ENV APP_BASE_PATH=${APP_BASE_PATH} 
 LABEL org.opencontainers.image.authors="marcelo@feitoza.com.br"
 LABEL description="Kubevirt Manager ${KVM_VERSION} - Builder"
 
 WORKDIR /usr/src/app
 COPY . /usr/src/app
-RUN cd /usr/src/app && \
-    npm install -g npm@10.8.2 && \
+RUN npm install -g npm@10.8.2 && \
     npm run clean && \
     npm install -g @angular/cli@18.1.1 && \
     npm install
-RUN cd /usr/src/app/src/assets/ && \
-    git clone https://github.com/novnc/noVNC.git
-RUN cd /usr/src/app && \
-    sed -i "s|nightly|${KVM_VERSION}|g" src/app/components/main-footer/main-footer.component.html && \
-    npm run build -- --base-href=${APP_BASE_PATH}/
+RUN cd src/assets/ && git clone https://github.com/novnc/noVNC.git
+RUN sed -i "s|nightly|${KVM_VERSION}|g" src/app/components/main-footer/main-footer.component.html && \
+    npm run build
 
-# OAUTH2 IMAGE
 FROM quay.io/oauth2-proxy/oauth2-proxy:latest AS oauth2_proxy_downloader
 
-# NGINX Image
 FROM docker.io/nginx:1.29-alpine
-
 ARG KVM_VERSION
-ARG APP_BASE_PATH
-ENV APP_BASE_PATH=${APP_BASE_PATH}
-
 LABEL org.opencontainers.image.authors="marcelo@feitoza.com.br"
 LABEL description="Kubevirt Manager ${KVM_VERSION}"
 
 COPY --from=oauth2_proxy_downloader /bin/oauth2-proxy /bin/oauth2-proxy
 COPY --from=oauth2_proxy_downloader /etc/ssl/private/jwt_signing_key.pem /etc/ssl/private/jwt_signing_key.pem
 
-RUN mkdir -p /etc/nginx/location.d/ /etc/nginx/oauth.d/
+RUN mkdir -p /etc/nginx/location.d/ \
+             /etc/nginx/oauth.d/ \
+             /etc/nginx/conf.d.templates    # ← templates live here, never mounted over
+
 RUN curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl && \
-    chmod +x ./kubectl && \
-    mv ./kubectl /usr/local/bin
+    chmod +x ./kubectl && mv ./kubectl /usr/local/bin
 
 COPY entrypoint/90-oauth-proxy.sh /docker-entrypoint.d
 COPY entrypoint/91-startkubectl.sh /docker-entrypoint.d
-# COPY conf/default.conf /etc/nginx/conf.d/
-COPY conf/default.conf /etc/nginx/conf.d/default.conf.template
-RUN envsubst '${APP_BASE_PATH}' \
-        < /etc/nginx/conf.d/default.conf.template \
-        > /etc/nginx/conf.d/default.conf \
- && rm /etc/nginx/conf.d/default.conf.template
-COPY conf/gzip.conf /etc/nginx/conf.d/
+COPY entrypoint/92-configure-basepath.sh /docker-entrypoint.d
 
-RUN chmod +x /docker-entrypoint.d/90-oauth-proxy.sh && chmod +x /docker-entrypoint.d/91-startkubectl.sh
+COPY conf/default.conf /etc/nginx/conf.d.templates/default.conf.template
+COPY conf/gzip.conf    /etc/nginx/conf.d.templates/gzip.conf
 
-COPY --from=builder /usr/src/app/dist/kubevirtmgr-webui/browser /usr/share/nginx/html
- 
+RUN chmod +x /docker-entrypoint.d/90-oauth-proxy.sh \
+ && chmod +x /docker-entrypoint.d/91-startkubectl.sh \
+ && chmod +x /docker-entrypoint.d/92-configure-basepath.sh
+
+# COPY --from=builder /usr/src/app/dist/kubevirtmgr-webui/browser /usr/share/nginx/html
+COPY --from=builder /usr/src/app/dist/kubevirtmgr-webui/browser /usr/share/nginx/html.original
+RUN chmod -R 755 /usr/share/nginx/html.original
