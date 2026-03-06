@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Build Args
-ARG KVM_VERSION=nightly
+ARG KVM_VERSION=1.5.4-subpath-3
 
 # Node/Angular Builder
 FROM docker.io/node:22.5.1-bookworm as builder
