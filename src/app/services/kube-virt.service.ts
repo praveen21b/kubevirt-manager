@@ -32,12 +32,12 @@ export class KubeVirtService {
 
     getVM(namespace: string, name: string): Observable<any> {
         var baseUrl ='./k8s/apis/kubevirt.io/v1';
-        return this.http.get(`${baseUrl}/namespaces/${namespace}/virtualmachines/${name}`);
+        return this.http.get(`${baseUrl}/namespaces/${namespace}/virtualmachines/${name}?labelSelector=kubevirt-manager.io%2Fmanaged`);
     }
 
     getVMsNamespaced(namespace: string): Observable<any> {
         var baseUrl ='./k8s/apis/kubevirt.io/v1';
-        return this.http.get(`${baseUrl}/namespaces/${namespace}/virtualmachines`);
+        return this.http.get(`${baseUrl}/namespaces/${namespace}/virtualmachines?labelSelector=kubevirt-manager.io%2Fmanaged`);
     }
 
     getPooledVM(namespace: string, pool: string): Observable<any> {
@@ -67,7 +67,7 @@ export class KubeVirtService {
 
     getVMPoolsNamespaced(namespace: string): Observable<any> {
         var baseUrl ='./k8s/apis/pool.kubevirt.io/v1alpha1';
-        return this.http.get(`${baseUrl}/namespaces/${namespace}/virtualmachinepools`);
+        return this.http.get(`${baseUrl}/namespaces/${namespace}/virtualmachinepools?labelSelector=kubevirt-manager.io%2Fmanaged`);
     }
 
     getVMPool(namespace: string, name: string): Observable<any> {
