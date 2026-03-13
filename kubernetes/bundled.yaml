@@ -187,6 +187,9 @@ rules:
   - apiGroups: ["kubevirt-manager.io"]
     resources: ["images"]
     verbs: ["*"]
+  - apiGroups: ["snapshot.kubevirt.io"]
+    resources: ["virtualmachinesnapshots", "virtualmachinesnapshotcontents", "virtualmachinerestores"]
+    verbs: ["get", "list", "watch", "create", "delete"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
