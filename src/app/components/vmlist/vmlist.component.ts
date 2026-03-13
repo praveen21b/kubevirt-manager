@@ -1308,6 +1308,77 @@ export class VmlistComponent implements OnInit {
         }
     }
 
+   /*
+    * Show Snapshot Window
+    */
+    async showSnapshot(vmName: string, vmNamespace: string): Promise<void> {
+        let modalDiv = document.getElementById("modal-snapshot");
+        let modalTitle = document.getElementById("snapshot-title");
+        let modalBody = document.getElementById("snapshot-value");
+        if(modalTitle != null) {
+            modalTitle.replaceChildren("Create VM Snapshot");
+        }
+        if(modalBody != null) {
+            let vmNameInput = document.getElementById("snapshot-vm");
+            let vmNamespaceInput = document.getElementById("snapshot-namespace");
+            if(vmNameInput != null && vmNamespaceInput != null) {
+                vmNameInput.setAttribute("value", vmName);
+                vmNamespaceInput.setAttribute("value", vmNamespace);
+    
+            }
+        }
+        if(modalDiv != null) {
+            modalDiv.setAttribute("class", "modal fade show");
+            modalDiv.setAttribute("aria-modal", "true");
+            modalDiv.setAttribute("role", "dialog");
+            modalDiv.setAttribute("aria-hidden", "false");
+            modalDiv.setAttribute("style","display: block;");
+        }
+    }
+    
+    /*
+     * Create Snapshot
+     */
+    async applySnapshot(snapshotName: string): Promise<void> {
+        let vmNameInput = document.getElementById("snapshot-vm");
+        let vmNamespaceInput = document.getElementById("snapshot-namespace");
+        if(vmNameInput != null && vmNamespaceInput != null) {
+            let vmName = vmNameInput.getAttribute("value");
+            let vmNamespace = vmNamespaceInput.getAttribute("value");
+            if(vmName != null && vmNamespace != null) {
+                if(vmName != null && vmNamespace != null && snapshotName != null) {
+                    let thisSnapshot = {
+                        apiVersion: "snapshot.kubevirt.io/v1beta1",
+                        kind: "VirtualMachineSnapshot",
+                        metadata: {
+                            name: snapshotName,
+                            namespace: vmNamespace,
+                            labels: {
+                                "kubevirt-manager.io/managed": "true"
+                            }
+                        },
+                        spec: {
+                            source: {
+                                apiGroup: "kubevirt.io",
+                                kind: "VirtualMachine",
+                                name: vmName
+                            }
+                        }
+                    };
+                    try {
+                        await lastValueFrom(this.k8sService.createVirtualMachineSnapshot(vmNamespace, thisSnapshot));
+                        this.hideComponent("modal-snapshot");
+                        this.myToasts.toastSuccess(this.pageName, "", "Created Snapshot: " + name);
+                        this.fullReload();
+                    } catch (e: any) {
+                        this.myToasts.toastError(this.pageName, "", e.message);
+                        console.log(e);
+                    }
+                }
+            }
+        }
+    }
+
     /*
      * VM Basic Operations (start, stop, etc...)
      */

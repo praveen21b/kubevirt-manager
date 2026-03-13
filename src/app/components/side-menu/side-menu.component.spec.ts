@@ -32,7 +32,7 @@ describe('SideMenuComponent', () => {
     const componentDoc: DebugElement = fixture.debugElement;
     const componentElem = componentDoc.query(By.css('.brand-text'))
     const contentValue = componentElem.nativeElement;
-    expect(contentValue.textContent).toContain('kubevirt-manager');
+    expect(contentValue.textContent).toContain('Kubevirt-Manager');
   });
   it('should contain Dashboard item', () => {
     const componentDoc: DebugElement = fixture.debugElement;
@@ -49,6 +49,24 @@ describe('SideMenuComponent', () => {
   it('should contain VM Pools item', () => {
     const componentDoc: DebugElement = fixture.debugElement;
     const componentElem = componentDoc.query(By.css('.fa-server'))
+    const contentValue = componentElem.nativeElement;
+    expect(contentValue).toBeTruthy();
+  });
+  it('should contain Snapshots submenu', () => {
+    const componentDoc: DebugElement = fixture.debugElement;
+    const componentElem = componentDoc.query(By.css('.fa-camera'))
+    const contentValue = componentElem.nativeElement;
+    expect(contentValue).toBeTruthy();
+  });
+  it('should contain Snapshots submenu item', () => {
+    const componentDoc: DebugElement = fixture.debugElement;
+    const componentElem = componentDoc.query(By.css('.fa-camera-retro'))
+    const contentValue = componentElem.nativeElement;
+    expect(contentValue).toBeTruthy();
+  });
+  it('should contain Restore submenu item', () => {
+    const componentDoc: DebugElement = fixture.debugElement;
+    const componentElem = componentDoc.query(By.css('.fa-undo'))
     const contentValue = componentElem.nativeElement;
     expect(contentValue).toBeTruthy();
   });
