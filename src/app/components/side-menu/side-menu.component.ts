@@ -31,6 +31,18 @@ export class SideMenuComponent implements OnInit {
     }
 
     /*
+     * Close Snapshot treeview menu
+     */
+    closeSnapshotMenu(): void {
+        const treeview = document.querySelector('.nav-item.has-treeview');
+        if (treeview) {
+            treeview.classList.remove('menu-open');
+            const submenu = treeview.querySelector('.nav-treeview') as HTMLElement;
+            if (submenu) submenu.style.display = 'none';
+        }
+    }
+
+    /*
      * Load CRDs
      */
     async loadCrds(): Promise<void> {
