@@ -27,6 +27,8 @@ import { SSHKeysComponent } from './components/sshkeys/sshkeys.component';
 import { FirewallListComponent } from './components/firewall-list/firewall-list.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { DataTablesModule } from 'angular-datatables'
+import { SnapshotListComponent } from './components/snapshot-list/snapshot-list.component';
+import { SnapshotRestoreListComponent } from './components/snapshot-restore-list/snapshot-restore-list.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -51,7 +53,9 @@ import { DataTablesModule } from 'angular-datatables'
         ImagesComponent,
         SSHKeysComponent,
         FirewallListComponent,
-        SettingsComponent
+        SnapshotListComponent,
+        SettingsComponent,
+        SnapshotRestoreListComponent
     ],
     bootstrap: [
         AppComponent
